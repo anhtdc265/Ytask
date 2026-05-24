@@ -1,0 +1,253 @@
+import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
+import 'register_screen.dart';
+import 'package:todo_app/core/theme/app_theme.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
+
+  static const Color primaryGreen = Color(0xFF63D64E);
+
+  Future<void> _handleLogin() async {
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.signIn(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Lỗi đăng nhập: ${e.toString()}")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final yColors = AppTheme.colors(context);
+    final topSectionHeight = size.height * 0.28;
+    const double frogSize = 140;
+
+    return Scaffold(
+      backgroundColor: yColors.authBackground,
+      body: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: size.height),
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      height: topSectionHeight,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      color: yColors.authBackground,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Xin chào!",
+                            style: TextStyle(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w900,
+                              color: yColors.brandDark,
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            "Chào mừng đến với YTask",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color: yColors.brandDark,
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      constraints: BoxConstraints(minHeight: size.height - topSectionHeight),
+                      padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
+                      decoration: BoxDecoration(
+                        color: yColors.authPanel,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Đăng nhập",
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: yColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          _AuthTextField(hintText: "Email:", icon: Icons.mail_outline, controller: _emailController),
+                          const SizedBox(height: 16),
+                          _AuthTextField(hintText: "Mật khẩu:", icon: Icons.lock_outline, obscureText: true, controller: _passwordController),
+                          const SizedBox(height: 28),
+                          _isLoading 
+                            ? const Center(child: CircularProgressIndicator(color: primaryGreen))
+                            : _PrimaryAuthButton(text: "ĐĂNG NHẬP", onPressed: _handleLogin),
+                          const SizedBox(height: 20),
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                                );
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                  text: "Chưa có tài khoản? ",
+                                  style: TextStyle(
+                                    color: yColors.textMuted,
+                                    fontSize: 14,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: "Đăng ký ngay",
+                                      style: TextStyle(
+                                        color: yColors.brand,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  top: topSectionHeight - (frogSize / 2),
+                  right: 30,
+                  child: Image.asset(
+                    'assets/images/frog.png',
+                    width: frogSize, height: frogSize,
+                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.bug_report, size: frogSize, color: primaryGreen),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthTextField extends StatelessWidget {
+  final String hintText;
+  final IconData icon;
+  final bool obscureText;
+  final TextEditingController controller;
+
+  const _AuthTextField({
+    required this.hintText,
+    required this.icon,
+    required this.controller,
+    this.obscureText = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final yColors = AppTheme.colors(context);
+
+    return SizedBox(
+      height: 56,
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        cursorColor: yColors.brand,
+        style: TextStyle(
+          color: yColors.textPrimary,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: yColors.inputHint,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+          prefixIcon: Icon(
+            icon,
+            color: yColors.inputHint,
+            size: 22,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PrimaryAuthButton extends StatelessWidget {
+  final String text;
+  final VoidCallback onPressed;
+
+  const _PrimaryAuthButton({
+    required this.text,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final yColors = AppTheme.colors(context);
+
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: yColors.brand,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ),
+    );
+  }
+}

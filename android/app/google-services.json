@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "943829176655",
+    "firebase_url": "https://ytask-21426-default-rtdb.firebaseio.com",
+    "project_id": "ytask-21426",
+    "storage_bucket": "ytask-21426.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943829176655:android:0fa8544983fcb61bd8753a",
+        "android_client_info": {
+          "package_name": "com.example.todo_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSHqO2eFazR3HWc4WqvgXf_dXYClfhWRM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
